@@ -3,31 +3,3 @@ border: 1px solid black;
 background-color: black;
 }
 
-#left
-{
-	
-	background-color: black;
-	color:blue;
-	padding:15 px 32 px;
-	font-size: 14px;
-	
-}
-
-#left:hover{
-	background-color: blue;
-	color:black;
-}
-
-#right
-{
-	background-color: black;
-	color:blue;
-	padding:15 px 32 px;
-	font-size: 14px;
-	
-}
-
-#right:hover{
-	background-color: blue;
-	color:black;
-}

@@ -1,21 +1,33 @@
  var myGamePiece;
  var myObstacles=[];
- var myScore;
+ var myScore1;
+ var myScore2;
+ var play=1;
  var speedY1=3;
+ var pause=false;
+ var myButton;
+ var GameArea;
+ var interval;
+ 
  
  function startGame() 
  {
     GameArea.start();
+	
+	speedY1=3;
+	 myObstacles=[];
+	
 }
 
 
- var GameArea
+ GameArea
  ={
     canvas : document.createElement("canvas"),
     
 	start : function() {
 		 myGamePiece=new Player(240,600,90,15,0,"red","blue");
 		 myScore= new Score(370,20);
+		myButton= new Button(0,700,60,700,415,700);
 		 
 		 this.canvas.width=480;
 		 this.canvas.height=720;
@@ -25,14 +37,29 @@
 		 document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 		 
 		 this.frameNo=0;
-		 this.interval=setInterval(updateGameArea,20);
+		 interval=setInterval(updateGameArea,20);
 		 
 		 window.addEventListener('keydown', function (e) {
             GameArea.key = e.keyCode;
-        })
+        });
         window.addEventListener('keyup', function (e) {
             GameArea.key = false;
-        })
+        });
+		
+		this.canvas.addEventListener("click" , function(event){
+		if(event.x < myButton.x1 + 50 && event.x > myButton.x1 && 
+		    event.y < myButton.y1 && event.y > myButton.y1 - 50)
+		   pauseGame();
+		
+		else if(event.x < myButton.x2 + 50 && event.x > myButton.x2 && 
+		    event.y < myButton.y2 && event.y > myButton.y2 - 50)
+		   resumeGame();   
+		   
+		else if(event.x < myButton.x3 + 50 && event.x > myButton.x3 && 
+		           event.y < myButton.y3  && event.y > myButton.y3 - 50)
+		          restartGame();
+				  
+	})
 		 
 	 },
 	 
@@ -41,9 +68,16 @@
 		 this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
 	 },
 	 
+	 resume: function()
+	 {
+		 interval=setInterval(updateGameArea,20);
+	 },
+	 
+	 
 	 stop: function()
 	 {
-		 clearInterval(this.interval);
+		 clearInterval(interval);
+		 
 	 }
  }
  
@@ -63,18 +97,14 @@
 		 ctx=GameArea.context;
             ctx.fillStyle = color;
             ctx.fillRect(this.X, this.Y, this.width, this.height);
-		 
 	 }
-	 
-	 
+	  
 	 this.newPos=function()
 	 {
 		 
 		 this.Y+=this.speedY;
 	 }
-	
-	
- 
+	 
  }
  
 
@@ -164,6 +194,38 @@
 	 
  }
  
+ 
+function Button(x1,y1,x2,y2,x3,y3)
+{
+	
+	this.x1=x1;
+	this.x2=x2;
+	this.x3=x3;
+	this.y1=y1;
+	this.y2=y2;
+	this.y3=y3;
+	
+	this.update=function()
+	{
+	ctx=GameArea.context;
+
+	
+	ctx.fillStyle="white";
+	ctx.font = "20px Trebuchet MS";
+	ctx.fillText("Pause",this.x1,this.y1);
+	
+    ctx.fillStyle="white";
+	ctx.font = "20px Trebuchet MS";
+	ctx.fillText("Resume",this.x2,this.y2);
+	
+	ctx.fillStyle="white";
+	ctx.font = "20px Trebuchet MS";
+	ctx.fillText("Restart",this.x3,this.y3);
+	
+	}
+}
+
+
  function updateGameArea()
  {
 	 //check Crash
@@ -180,12 +242,16 @@
 	 
 	 // obstacle
 	  GameArea.frameNo += 1;
+	  
 	  myGamePiece.turn=0;
+	  
 	  if (GameArea.key && GameArea.key == 37) {turnleft(); }
     if (GameArea.key && GameArea.key == 39) {turnright(); } 
 	
+	
+	
     if (GameArea.frameNo == 1 || GameArea.frameNo%80==1) {
-		speedY1+=0.1;
+		speedY1+=0.2;
 		var w=Math.floor(Math.random()*(GameArea.canvas.width-20));
         myObstacles.push(new Obstacle(myGamePiece.BigRadius, 20, "yellow", w,0));
     }
@@ -199,8 +265,11 @@
 	
 	 myScore.text="SCORE: " + Math.floor(GameArea.frameNo/10);
     myScore.update();
+	
     myGamePiece.newPos();    
     myGamePiece.update();
+	
+	myButton.update();
 	
 	if(myGamePiece.Y==myGamePiece.BigRadius)
 	{
@@ -224,5 +293,41 @@
  function clearmove()
  {
 	 myGamePiece.turn=0;
+ }
+ 
+ 
+ function restartGame()
+ {	
+ 	 pause=false;
+	 GameArea.stop();
+	
+	 GameArea.clear();
+
+	 startGame();
+ }
+ 
+ function pauseGame()
+ {
+	 
+	 if (!pause)
+	 {
+		  pause=true;
+		  
+		  
+	 GameArea.stop();
+		return;
+	 }
+ }
+
+function resumeGame()
+{ 
+	 if(pause)
+	 {    pause=false;
+
+		  GameArea.resume();
+		  return;
+		 
+	 }
+ 
  }
  
